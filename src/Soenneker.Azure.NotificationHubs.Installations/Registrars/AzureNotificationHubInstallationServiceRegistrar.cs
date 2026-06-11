@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soenneker.Azure.NotificationHubs.Installations.Abstract;
+using Soenneker.Azure.NotificationHubs.Service.Registrars;
 
 namespace Soenneker.Azure.NotificationHubs.Installations.Registrars;
 
@@ -14,6 +15,7 @@ public static class AzureNotificationHubInstallationServiceRegistrar
     /// </summary>
     public static IServiceCollection AddAzureNotificationHubInstallationServiceAsSingleton(this IServiceCollection services)
     {
+        services.AddAzureNotificationHubServiceAsSingleton();
         services.TryAddSingleton<IAzureNotificationHubInstallationService, AzureNotificationHubInstallationService>();
 
         return services;
@@ -24,6 +26,7 @@ public static class AzureNotificationHubInstallationServiceRegistrar
     /// </summary>
     public static IServiceCollection AddAzureNotificationHubInstallationServiceAsScoped(this IServiceCollection services)
     {
+        services.AddAzureNotificationHubServiceAsScoped();
         services.TryAddScoped<IAzureNotificationHubInstallationService, AzureNotificationHubInstallationService>();
 
         return services;
