@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using AwesomeAssertions;
+using Microsoft.Azure.NotificationHubs;
 using Soenneker.Azure.NotificationHubs.Installations.Abstract;
 using Soenneker.Tests.HostedUnit;
 
@@ -14,8 +19,23 @@ public sealed class AzureNotificationHubInstallationServiceTests : HostedUnitTes
     }
 
     [Test]
-    public void Default()
+    public async Task Rejects_blank_installation_id()
     {
+        Func<Task> act = async () => await _util.CreateOrUpdate(
+            " ",
+            NotificationPlatform.FcmV1,
+            "push-channel");
 
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Test]
+    public async Task Rejects_empty_patch_set()
+    {
+        Func<Task> act = async () => await _util.Patch(
+            "installation-id",
+            new List<PartialUpdateOperation>());
+
+        await act.Should().ThrowAsync<ArgumentException>();
     }
 }

@@ -4,43 +4,76 @@
 
 # Soenneker.Azure.NotificationHubs.Installations
 
-Installation registration and lifecycle helpers for Azure Notification Hubs.
+Server-side helpers for creating, retrieving, patching, and deleting Azure Notification Hubs device installations.
 
-## Install
+## Installation
 
 ```bash
 dotnet add package Soenneker.Azure.NotificationHubs.Installations
 ```
 
-## Quick start
+## Configuration and registration
+
+```json
+{
+  "Azure": {
+    "NotificationHubs": {
+      "ConnectionString": "Endpoint=sb://...",
+      "HubName": "notifications"
+    }
+  }
+}
+```
 
 ```csharp
 using Soenneker.Azure.NotificationHubs.Installations.Registrars;
-using Microsoft.Extensions.DependencyInjection;
 
-var services = new ServiceCollection();
-var result = services.AddAzureNotificationHubInstallationServiceAsSingleton();
+builder.Services.AddAzureNotificationHubInstallationServiceAsSingleton();
 ```
 
-Adds `IAzureNotificationHubInstallationService` as a singleton service.
+Use a connection string with only the permissions required by this backend and keep it in a secret provider.
 
-## What you get
+## Create or update an installation
 
-- `IAzureNotificationHubInstallationService` — Installation registration and lifecycle helpers for Azure Notification Hubs.
-- `AzureNotificationHubInstallationServiceRegistrar` — Installation registration and lifecycle helpers for Azure Notification Hubs.
+```csharp
+using Microsoft.Azure.NotificationHubs;
+using Soenneker.Azure.NotificationHubs.Installations.Abstract;
 
-## API at a glance
+public sealed class PushRegistrationService(
+    IAzureNotificationHubInstallationService installations)
+{
+    public ValueTask Register(
+        string installationId,
+        string fcmToken,
+        string userId,
+        CancellationToken cancellationToken) =>
+        installations.CreateOrUpdate(
+            installationId,
+            NotificationPlatform.FcmV1,
+            fcmToken,
+            tags: [$"user:{userId}"],
+            userId: userId,
+            cancellationToken: cancellationToken);
+}
+```
 
-| API | What it does | Result / important behavior |
-| --- | --- | --- |
-| `IAzureNotificationHubInstallationService.CreateOrUpdate(installation, cancellationToken)` | Creates or updates a device installation. | A task that completes when the or update creation is complete. |
-| `IAzureNotificationHubInstallationService.CreateOrUpdate(installationId, platform, pushChannel, tags, userId, templates, pushVariables, cancellationToken)` | Creates or updates a device installation from the supplied installation details. | A task that completes when the or update creation is complete. |
-| `IAzureNotificationHubInstallationService.Get(installationId, cancellationToken)` | Gets a device installation. | A task whose result is the requested installation. |
-| `IAzureNotificationHubInstallationService.Patch(installationId, operations, cancellationToken)` | Patches a device installation. | A task that completes when the patch operation is complete. |
-| `IAzureNotificationHubInstallationService.Delete(installationId, cancellationToken)` | Deletes a device installation. | Completes when the requested deletion has finished. |
-| `AzureNotificationHubInstallationServiceRegistrar.AddAzureNotificationHubInstallationServiceAsSingleton(services)` | Adds `IAzureNotificationHubInstallationService` as a singleton service. | The same service collection, so additional registrations can be chained. |
-| `AzureNotificationHubInstallationServiceRegistrar.AddAzureNotificationHubInstallationServiceAsScoped(services)` | Adds `IAzureNotificationHubInstallationService` as a scoped service. | The same service collection, so additional registrations can be chained. |
+`CreateOrUpdate` is an upsert: reusing an installation ID replaces its platform, channel, tags, user ID, templates, and push variables with the supplied installation state.
 
-## Practical notes
+## Other operations
 
-- Cancellation stops pending work; it does not undo work that has already completed.
+```csharp
+Installation installation = await installations.Get(
+    installationId,
+    cancellationToken);
+
+await installations.Patch(
+    installationId,
+    patchOperations,
+    cancellationToken);
+
+await installations.Delete(installationId, cancellationToken);
+```
+
+Identifiers and push channels must be non-blank, and patch calls require at least one operation. Azure SDK exceptions are allowed to propagate so callers can handle not-found, authorization, throttling, and service failures.
+
+Installation IDs and push channels originate on devices, but tags used for authorization or audience selection should be derived and validated by the authenticated backend. Deleting an installation immediately removes it from subsequent sends; cancellation cannot undo a request Azure already accepted.

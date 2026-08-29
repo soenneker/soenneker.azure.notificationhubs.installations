@@ -2,6 +2,7 @@ using Microsoft.Azure.NotificationHubs;
 using Microsoft.Extensions.Logging;
 using Soenneker.Azure.NotificationHubs.Service.Abstract;
 using Soenneker.Azure.NotificationHubs.Installations.Abstract;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,6 +26,10 @@ public sealed class AzureNotificationHubInstallationService : IAzureNotification
 
     public async ValueTask CreateOrUpdate(Installation installation, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(installation);
+        ArgumentException.ThrowIfNullOrWhiteSpace(installation.InstallationId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(installation.PushChannel);
+
         NotificationHubClient client = await _notificationHubService.Get(cancellationToken).NoSync();
 
         _logger.LogDebug("Creating or updating Azure Notification Hubs installation ({installationId})...",
@@ -38,6 +43,9 @@ public sealed class AzureNotificationHubInstallationService : IAzureNotification
         IDictionary<string, InstallationTemplate>? templates = null, IDictionary<string, string>? pushVariables = null,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(installationId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(pushChannel);
+
         var installation = new Installation
         {
             InstallationId = installationId,
@@ -54,6 +62,8 @@ public sealed class AzureNotificationHubInstallationService : IAzureNotification
 
     public async ValueTask<Installation> Get(string installationId, CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(installationId);
+
         NotificationHubClient client = await _notificationHubService.Get(cancellationToken).NoSync();
 
         _logger.LogDebug("Getting Azure Notification Hubs installation ({installationId})...", installationId);
@@ -64,6 +74,12 @@ public sealed class AzureNotificationHubInstallationService : IAzureNotification
     public async ValueTask Patch(string installationId, IList<PartialUpdateOperation> operations,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(installationId);
+        ArgumentNullException.ThrowIfNull(operations);
+
+        if (operations.Count == 0)
+            throw new ArgumentException("At least one patch operation must be provided.", nameof(operations));
+
         NotificationHubClient client = await _notificationHubService.Get(cancellationToken).NoSync();
 
         _logger.LogDebug("Patching Azure Notification Hubs installation ({installationId})...", installationId);
@@ -73,6 +89,8 @@ public sealed class AzureNotificationHubInstallationService : IAzureNotification
 
     public async ValueTask Delete(string installationId, CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(installationId);
+
         NotificationHubClient client = await _notificationHubService.Get(cancellationToken).NoSync();
 
         _logger.LogDebug("Deleting Azure Notification Hubs installation ({installationId})...", installationId);
