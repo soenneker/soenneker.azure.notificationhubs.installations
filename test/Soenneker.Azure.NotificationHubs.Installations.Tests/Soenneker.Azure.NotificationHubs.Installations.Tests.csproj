@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -27,4 +27,7 @@
         <ProjectReference Include="..\..\src\Soenneker.Azure.NotificationHubs.Installations\Soenneker.Azure.NotificationHubs.Installations.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="AwesomeAssertions" Version="9.6.0" />
+    </ItemGroup>
 </Project>
