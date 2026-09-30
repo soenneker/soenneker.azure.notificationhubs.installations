@@ -20,7 +20,7 @@ public sealed class AzureNotificationHubInstallationServiceTests : HostedUnitTes
     }
 
     [Test]
-    public async Task Rejects_blank_installation_id(CancellationToken cancellationToken)
+    public async ValueTask Rejects_blank_installation_id(CancellationToken cancellationToken)
     {
         Func<Task> act = async () => await _util.CreateOrUpdate(
             " ",
@@ -32,7 +32,7 @@ public sealed class AzureNotificationHubInstallationServiceTests : HostedUnitTes
     }
 
     [Test]
-    public async Task Rejects_empty_patch_set(CancellationToken cancellationToken)
+    public async ValueTask Rejects_empty_patch_set(CancellationToken cancellationToken)
     {
         Func<Task> act = async () => await _util.Patch(
             "installation-id",
