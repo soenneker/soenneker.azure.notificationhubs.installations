@@ -46,7 +46,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Azure.NotificationHubs.Service" Version="11.0.103" />
+        <PackageReference Include="Soenneker.Azure.NotificationHubs.Service" Version="11.0.104" />
         <PackageReference Include="Soenneker.Extensions.Task" Version="11.0.141" />
     </ItemGroup>
     <ItemGroup>
