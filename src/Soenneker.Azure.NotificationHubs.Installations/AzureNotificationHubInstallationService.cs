@@ -66,7 +66,8 @@ public sealed class AzureNotificationHubInstallationService : IAzureNotification
 
         NotificationHubClient client = await _notificationHubService.Get(cancellationToken).NoSync();
 
-        _logger.LogDebug("Getting Azure Notification Hubs installation ({installationId})...", installationId);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Getting Azure Notification Hubs installation ({installationId})...", installationId);
 
         return await client.GetInstallationAsync(installationId, cancellationToken).NoSync();
     }
@@ -82,7 +83,8 @@ public sealed class AzureNotificationHubInstallationService : IAzureNotification
 
         NotificationHubClient client = await _notificationHubService.Get(cancellationToken).NoSync();
 
-        _logger.LogDebug("Patching Azure Notification Hubs installation ({installationId})...", installationId);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Patching Azure Notification Hubs installation ({installationId})...", installationId);
 
         await client.PatchInstallationAsync(installationId, operations, cancellationToken).NoSync();
     }
@@ -93,7 +95,8 @@ public sealed class AzureNotificationHubInstallationService : IAzureNotification
 
         NotificationHubClient client = await _notificationHubService.Get(cancellationToken).NoSync();
 
-        _logger.LogDebug("Deleting Azure Notification Hubs installation ({installationId})...", installationId);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Deleting Azure Notification Hubs installation ({installationId})...", installationId);
 
         await client.DeleteInstallationAsync(installationId, cancellationToken).NoSync();
     }
