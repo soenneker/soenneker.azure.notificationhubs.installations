@@ -46,8 +46,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Azure.NotificationHubs.Service" Version="11.0.114" />
-        <PackageReference Include="Soenneker.Extensions.Task" Version="11.0.143" />
+        <PackageReference Include="Soenneker.Azure.NotificationHubs.Service" Version="11.0.115" />
+        <PackageReference Include="Soenneker.Extensions.Task" Version="11.0.144" />
     </ItemGroup>
     <ItemGroup>
         <!-- Override the vulnerable transitive dependency. -->
